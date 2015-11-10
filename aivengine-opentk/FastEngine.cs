@@ -4,6 +4,10 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
+using OpenTK.Audio;
+using OpenTK.Audio.OpenAL;
+using System.IO;
+using System.Threading;
 
 namespace Aiv.Engine
 {
@@ -12,6 +16,7 @@ namespace Aiv.Engine
 		public GameWindow window;
 		private int texture;
 		private Rectangle textureRect;
+		private AudioContext audioContext;
 
 
 		public FastEngine (string windowName, int width, int height, int fps)
@@ -35,6 +40,9 @@ namespace Aiv.Engine
 			window.Resize += this.Game_Resize;
 			window.RenderFrame += this.Game_RenderFrame;
 
+			// initialize OpenAL context
+			audioContext = new AudioContext ();
+
 		}
 
 		public override void Run ()
@@ -43,7 +51,8 @@ namespace Aiv.Engine
 			this.window.Run (this.fps);
 		}
 
-		private void Game_RenderFrame (object sender, FrameEventArgs e) {
+		private void Game_RenderFrame (object sender, FrameEventArgs e)
+		{
 
 			if (!this.isGameRunning)
 				this.window.Exit ();
@@ -58,33 +67,83 @@ namespace Aiv.Engine
 			GL.Clear (ClearBufferMask.ColorBufferBit);
 
 			// projection matrix
-			GL.MatrixMode(MatrixMode.Projection);
-			GL.LoadIdentity();
-			GL.Ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 4.0);
+			GL.MatrixMode (MatrixMode.Projection);
+			GL.LoadIdentity ();
+			GL.Ortho (-1.0, 1.0, -1.0, 1.0, 0.0, 4.0);
 
 			// models
-			GL.MatrixMode(MatrixMode.Modelview);
-			GL.LoadIdentity();
+			GL.MatrixMode (MatrixMode.Modelview);
+			GL.LoadIdentity ();
 
 			GL.Begin (PrimitiveType.Quads);
 
-			GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(-1f, -1f);
-			GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(1f, -1f);
-			GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(1f, 1f);
-			GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(-1f, 1f);
+			GL.TexCoord2 (0.0f, 1.0f);
+			GL.Vertex2 (-1f, -1f);
+			GL.TexCoord2 (1.0f, 1.0f);
+			GL.Vertex2 (1f, -1f);
+			GL.TexCoord2 (1.0f, 0.0f);
+			GL.Vertex2 (1f, 1f);
+			GL.TexCoord2 (0.0f, 0.0f);
+			GL.Vertex2 (-1f, 1f);
 
-			GL.End();
+			GL.End ();
 
 			this.window.SwapBuffers ();
 		}
 
-		private void Game_Resize (object sender, EventArgs e){
+		private void Game_Resize (object sender, EventArgs e)
+		{
 			GL.Viewport (this.window.ClientRectangle);
 		}
 
-		public override bool IsKeyDown(int key) {
+		public override bool IsKeyDown (int key)
+		{
 			OpenTK.Input.KeyboardState state = OpenTK.Input.Keyboard.GetState ();
 			return state.IsKeyDown ((OpenTK.Input.Key)key);
+		}
+
+		private void PlaySoundThread (string assetName, bool loop)
+		{
+			string fileName = this.GetAsset (assetName).fileName;
+
+			int channels, bits_per_sample, sample_rate;
+			byte[] data = Utils.LoadWave (fileName, out channels, out bits_per_sample, out sample_rate);
+
+			int buffer = AL.GenBuffer ();
+			int source = AL.GenSource ();
+			AL.BufferData (buffer, Utils.WaveFormat (channels, bits_per_sample), data, data.Length, sample_rate);
+
+			AL.Source (source, ALSourcei.Buffer, buffer);
+			AL.Source (source, ALSourceb.Looping, loop);
+
+
+			AL.SourcePlay (source);
+
+			int state;
+
+			do {
+				Thread.Sleep (300);
+				AL.GetSource (source, ALGetSourcei.SourceState, out state);
+			} while ((ALSourceState)state == ALSourceState.Playing);
+
+			AL.SourceStop (source);
+			AL.DeleteSource (source);
+			AL.DeleteBuffer (buffer);
+		}
+
+		public override void PlaySound (string assetName)
+		{
+
+			Thread soundThread = new Thread (() => this.PlaySoundThread (assetName, false));
+			soundThread.Start ();
+
+
+		}
+
+		public override void PlaySoundLoop (string assetName)
+		{
+			Thread soundThread = new Thread (() => this.PlaySoundThread (assetName, true));
+			soundThread.Start ();
 		}
 	}
 }
