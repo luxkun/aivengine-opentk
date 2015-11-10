@@ -52,7 +52,7 @@ namespace Aiv.Engine
 
 			// upload texture
 			System.Drawing.Imaging.BitmapData data = this.workingBitmap.LockBits (this.textureRect, System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-			GL.TexImage2D (TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, this.width, this.height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, data.Scan0);
+			GL.TexImage2D (TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, this.width, this.height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
 			this.workingBitmap.UnlockBits (data);
 
 			GL.Clear (ClearBufferMask.ColorBufferBit);
