@@ -40,8 +40,8 @@ namespace Aiv.Engine
 			window.Resize += this.Game_Resize;
 			window.RenderFrame += this.Game_RenderFrame;
 
-			// initialize OpenAL context
-			audioContext = new AudioContext ();
+			// initialize OpenAL context (No ! do it lazily)
+			// audioContext = new AudioContext ();
 
 		}
 
@@ -133,7 +133,8 @@ namespace Aiv.Engine
 
 		public override void PlaySound (string assetName)
 		{
-
+			if (audioContext == null)
+				audioContext = new AudioContext ();
 			Thread soundThread = new Thread (() => this.PlaySoundThread (assetName, false));
 			soundThread.Start ();
 
@@ -142,6 +143,8 @@ namespace Aiv.Engine
 
 		public override void PlaySoundLoop (string assetName)
 		{
+			if (audioContext == null)
+				audioContext = new AudioContext ();
 			Thread soundThread = new Thread (() => this.PlaySoundThread (assetName, true));
 			soundThread.Start ();
 		}
