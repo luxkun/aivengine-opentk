@@ -8,6 +8,7 @@ using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 using System.IO;
 using System.Threading;
+using NVorbis.OpenTKSupport;
 
 namespace Aiv.Engine
 {
@@ -105,30 +106,41 @@ namespace Aiv.Engine
 		private void PlaySoundThread (string assetName, bool loop)
 		{
 			string fileName = this.GetAsset (assetName).fileName;
+			string ext = fileName.Substring(fileName.LastIndexOf(@".") + 1);
 
-			int channels, bits_per_sample, sample_rate;
-			byte[] data = Utils.LoadWave (fileName, out channels, out bits_per_sample, out sample_rate);
+			if (ext == "wav") {
+				int channels, bits_per_sample, sample_rate;
+				byte[] data = Utils.LoadWave (fileName, out channels, out bits_per_sample, out sample_rate);
 
-			int buffer = AL.GenBuffer ();
-			int source = AL.GenSource ();
-			AL.BufferData (buffer, Utils.WaveFormat (channels, bits_per_sample), data, data.Length, sample_rate);
+				int buffer = AL.GenBuffer ();
+				int source = AL.GenSource ();
+				AL.BufferData (buffer, Utils.WaveFormat (channels, bits_per_sample), data, data.Length, sample_rate);
 
-			AL.Source (source, ALSourcei.Buffer, buffer);
-			AL.Source (source, ALSourceb.Looping, loop);
+				AL.Source (source, ALSourcei.Buffer, buffer);
+				AL.Source (source, ALSourceb.Looping, loop);
 
 
-			AL.SourcePlay (source);
+				AL.SourcePlay (source);
 
-			int state;
+				int state;
 
-			do {
-				Thread.Sleep (300);
-				AL.GetSource (source, ALGetSourcei.SourceState, out state);
-			} while ((ALSourceState)state == ALSourceState.Playing);
+				do {
+					Thread.Sleep (300);
+					AL.GetSource (source, ALGetSourcei.SourceState, out state);
+				} while ((ALSourceState)state == ALSourceState.Playing);
 
-			AL.SourceStop (source);
-			AL.DeleteSource (source);
-			AL.DeleteBuffer (buffer);
+				AL.SourceStop (source);
+				AL.DeleteSource (source);
+				AL.DeleteBuffer (buffer);
+			} else if (ext == "ogg") {
+				using (var streamer = new OggStreamer ()) {
+					OggStream stream = new OggStream (fileName);
+					stream.Prepare ();
+					stream.Play ();
+				}
+			} else {
+				throw new NotImplementedException($"Support for audio extension '{ext}' is not implemented.");
+			}
 		}
 
 		public override void PlaySound (string assetName)
