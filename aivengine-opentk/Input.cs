@@ -33,20 +33,14 @@ namespace Aiv.Engine
 		private int openTKindex;
 
 		// -128 127
-		public new int x { // an array of axis would probably be better
+		public new int x 
+		{
 			get { return (int)(Joystick.GetState(openTKindex).GetAxis(JoystickAxis.Axis0) * 127); }
 			set { } // not supposed to
 		}
-		public new int y {
+		public new int y
+		{
 			get { return (int)(Joystick.GetState(openTKindex).GetAxis(JoystickAxis.Axis1) * 127); }
-			set { } // not supposed to
-		}
-		public int z {
-			get { return (int)(Joystick.GetState(openTKindex).GetAxis(JoystickAxis.Axis2) * 127); }
-			set { } // not supposed to
-		}
-		public int w {
-			get { return (int)(Joystick.GetState(openTKindex).GetAxis(JoystickAxis.Axis3) * 127); }
 			set { } // not supposed to
 		}
 
@@ -60,6 +54,11 @@ namespace Aiv.Engine
 			name = hashCode.ToString();
 
 			obuttons = new TKButtons<bool> (openTKindex);
+		}
+
+		public new int GetAxis(int axisIndex)
+		{
+			return (int)(Joystick.GetState(openTKindex).GetAxis((JoystickAxis)axisIndex) * 127);
 		}
 
 		public new bool GetButton (int buttonIndex)
