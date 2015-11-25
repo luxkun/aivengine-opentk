@@ -22,7 +22,12 @@ namespace Aiv.Engine
 
 		public FastEngine (string windowName, int width, int height, int fps)
 		{
-			
+            // disabling HiDPI support
+            var options = new ToolkitOptions
+            {
+                EnableHighResolution = false
+            };
+		    OpenTK.Toolkit.Init(options);
 			window = new GameWindow (width, height, OpenTK.Graphics.GraphicsMode.Default, windowName);
 
 			// call it AFTER GameWindow initialization to avoid problems with Windows.Forms
@@ -110,11 +115,11 @@ namespace Aiv.Engine
 
 			if (ext == "wav") {
 				int channels, bits_per_sample, sample_rate;
-				byte[] data = Utils.LoadWave (fileName, out channels, out bits_per_sample, out sample_rate);
+				byte[] data = OpenTKUtils.LoadWave (fileName, out channels, out bits_per_sample, out sample_rate);
 
 				int buffer = AL.GenBuffer ();
 				int source = AL.GenSource ();
-				AL.BufferData (buffer, Utils.WaveFormat (channels, bits_per_sample), data, data.Length, sample_rate);
+				AL.BufferData (buffer, OpenTKUtils.WaveFormat (channels, bits_per_sample), data, data.Length, sample_rate);
 
 				AL.Source (source, ALSourcei.Buffer, buffer);
 				AL.Source (source, ALSourceb.Looping, loop);

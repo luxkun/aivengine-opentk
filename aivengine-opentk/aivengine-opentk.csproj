@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -28,6 +28,10 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\opentk\Binaries\OpenTK\Debug\OpenTK.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="NVorbis">
@@ -36,17 +40,14 @@
     <Reference Include="NVorbis.OpenTKSupport">
       <HintPath>..\packages\NVorbis.OpenTKSupport.1.1.0\lib\NVorbis.OpenTKSupport.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK">
-      <HintPath>..\packages\OpenTK.1.1.1589.5942\lib\NET40\OpenTK.dll</HintPath>
-    </Reference>
     <Reference Include="aivengine">
-      <HintPath>..\..\aivengine\aivengine\bin\Debug\aivengine.dll</HintPath>
+      <HintPath>..\..\aivengine-1\aivengine\bin\Debug\aivengine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FastEngine.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="OpenTKUtils.cs" />
     <Compile Include="Input.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -4,7 +4,7 @@ using OpenTK.Audio.OpenAL;
 
 namespace Aiv.Engine
 {
-	internal static class Utils
+	internal static class OpenTKUtils
 	{
 
 		// taken from OpenTK example
