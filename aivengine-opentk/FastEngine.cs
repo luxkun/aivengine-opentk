@@ -30,8 +30,8 @@ namespace Aiv.Engine
 		    OpenTK.Toolkit.Init(options);
 			window = new GameWindow (width, height, OpenTK.Graphics.GraphicsMode.Default, windowName);
 
-			// call it AFTER GameWindow initialization to avoid problems with Windows.Forms
-			this.Initialize (windowName, width, height, fps);
+            // call it AFTER GameWindow initialization to avoid problems with Windows.Forms
+            this.Initialize (windowName, width, height, fps);
 
 			// create a new texture
 			texture = GL.GenTexture ();
@@ -165,6 +165,15 @@ namespace Aiv.Engine
 			Thread soundThread = new Thread (() => this.PlaySoundThread (assetName, true));
 			soundThread.Start ();
 		}
+
+	    public override void FullScreen()
+	    {
+            DisplayDevice device = DisplayDevice.GetDisplay(0);
+            device.ChangeResolution(width, height, 32, -1);
+
+            window.WindowBorder = WindowBorder.Hidden;
+            window.WindowState = WindowState.Fullscreen;
+        }
 	}
 }
 
